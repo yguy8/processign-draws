@@ -7,3 +7,7 @@ void draw(){
   stroke(255);
   line(pmouseX, pmouseY, mouseX, mouseY);
 }
+
+void mousePressed(){
+  background(50);
+}
