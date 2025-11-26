@@ -1,4 +1,3 @@
-// Shooter minimalista en Processing
 ArrayList<Enemy> enemigos;
 ArrayList<Bala> balas;
 Nave nave;
@@ -29,7 +28,7 @@ void draw() {
   
   // Generar enemigos cada cierto tiempo
   if (frameCount % 60 == 0) {
-    enemigos.add(new Enemy(random(20, width-20), -20));
+    enemigos.add(new Enemy(random(40, width-40), -20));
   }
   
   // Actualizar y dibujar enemigos
@@ -41,7 +40,7 @@ void draw() {
     // Colisión con balas
     for (int j = balas.size()-1; j >= 0; j--) {
       Bala b = balas.get(j);
-      if (dist(e.x, e.y, b.x, b.y) < 15) {
+      if (dist(e.x, e.y, b.x, b.y) < 20) {
         enemigos.remove(i);
         balas.remove(j);
         break;
@@ -88,12 +87,48 @@ class Nave {
   void update() {
     if (moverIzq) x -= 5;
     if (moverDer) x += 5;
-    x = constrain(x, 20, width-20);
+    x = constrain(x, 30, width-30);
   }
   
   void display() {
+    rectMode(CENTER);
+    
+    // Cuerpo cuadrado
     fill(0, 200, 255);
-    triangle(x-15, y+15, x+15, y+15, x, y-15);
+    rect(x, y, 25, 50);
+    
+    // Cabina circular
+    fill(255);
+    ellipse(x, y-10, 15, 15);
+    
+    // Propulsores laterales y central
+    fill(255, 100, 50);
+    rect(x-15, y+15, 10, 15); // izquierdo
+    rect(x+15, y+15, 10, 15); // derecho
+    rect(x, y+20, 10, 15);    // central
+    
+    // Fuego de los propulsores
+    // Izquierdo
+    fill(255, 200, 0); // amarillo
+    triangle(x-20, y+22, x-10, y+22, x-15, y+35);
+    fill(255, 0, 0);   // rojo
+    triangle(x-18, y+28, x-12, y+28, x-15, y+42);
+    
+    // Derecho
+    fill(255, 200, 0); // amarillo
+    triangle(x+10, y+22, x+20, y+22, x+15, y+35);
+    fill(255, 0, 0);   // rojo
+    triangle(x+12, y+28, x+18, y+28, x+15, y+42);
+    
+    // Central
+    fill(255, 200, 0); // amarillo
+    triangle(x-5, y+28, x+5, y+28, x, y+42);
+    fill(255, 0, 0);   // rojo
+    triangle(x-4, y+34, x+4, y+34, x, y+48);
+    
+    // Triángulo verde en la parte superior
+    fill(0, 255, 0);
+    triangle(x-10, y-25, x+10, y-25, x, y-40);
   }
 }
 
@@ -110,7 +145,7 @@ class Bala {
   
   void display() {
     fill(255, 255, 0);
-    rect(x-2, y-10, 4, 10);
+    ellipse(x, y, 8, 8);
   }
 }
 
@@ -122,11 +157,22 @@ class Enemy {
   }
   
   void update() {
-    y += 3;
+    y += 2;
   }
   
   void display() {
-    fill(255, 50, 50);
-    rect(x-10, y-10, 20, 20); // enemigo cuadrado
+    // Platillo ovalado
+    fill(180, 180, 200);
+    ellipse(x, y, 50, 20);
+    
+    // Cúpula superior
+    fill(0, 150, 255);
+    ellipse(x, y-10, 25, 15);
+    
+    // Luces inferiores
+    fill(255, 200, 50);
+    ellipse(x-15, y+8, 5, 5);
+    ellipse(x, y+8, 5, 5);
+    ellipse(x+15, y+8, 5, 5);
   }
 }
