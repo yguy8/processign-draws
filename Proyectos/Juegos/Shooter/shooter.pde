@@ -1,6 +1,11 @@
+// Shooter minimalista en Processing con vidas, puntos y nave especial
 ArrayList<Enemy> enemigos;
 ArrayList<Bala> balas;
 Nave nave;
+
+int vidas = 3;
+int puntos = 0;
+boolean naveEspecialActiva = false;
 
 void setup() {
   size(600, 400);
@@ -11,6 +16,9 @@ void setup() {
 
 void draw() {
   background(20);
+  
+  // Mostrar vidas y puntos
+  mostrarHUD();
   
   // Actualizar y dibujar nave
   nave.update();
@@ -27,8 +35,14 @@ void draw() {
   }
   
   // Generar enemigos cada cierto tiempo
-  if (frameCount % 60 == 0) {
-    enemigos.add(new Enemy(random(40, width-40), -20));
+  if (frameCount % 60 == 0 && !naveEspecialActiva) {
+    enemigos.add(new Enemy(random(40, width-40), -20, false));
+  }
+  
+  // Activar nave especial al llegar a 25 puntos
+  if (puntos >= 25 && !naveEspecialActiva) {
+    enemigos.add(new Enemy(width/2, -40, true)); // nave grande
+    naveEspecialActiva = true;
   }
   
   // Actualizar y dibujar enemigos
@@ -40,10 +54,20 @@ void draw() {
     // Colisión con balas
     for (int j = balas.size()-1; j >= 0; j--) {
       Bala b = balas.get(j);
-      if (dist(e.x, e.y, b.x, b.y) < 20) {
+      if (dist(e.x, e.y, b.x, b.y) < (e.grande ? 40 : 20)) {
         enemigos.remove(i);
         balas.remove(j);
+        puntos++;
         break;
+      }
+    }
+    
+    // Colisión con la nave
+    if (dist(e.x, e.y, nave.x, nave.y) < (e.grande ? 40 : 20)) {
+      enemigos.remove(i);
+      vidas--;
+      if (vidas <= 0) {
+        gameOver();
       }
     }
     
@@ -70,6 +94,29 @@ void keyReleased() {
   } else if (keyCode == RIGHT) {
     nave.moverDer = false;
   }
+}
+
+// ------------------ HUD ------------------
+void mostrarHUD() {
+  // Vidas como círculos verdes
+  for (int i = 0; i < vidas; i++) {
+    fill(0, 255, 0);
+    ellipse(width - 30 - i*20, 20, 15, 15);
+  }
+  
+  // Puntos
+  fill(255);
+  textSize(16);
+  text("Puntos: " + puntos, width - 120, 50);
+}
+
+void gameOver() {
+  background(0);
+  fill(255, 0, 0);
+  textSize(32);
+  textAlign(CENTER, CENTER);
+  text("GAME OVER", width/2, height/2);
+  noLoop(); // detener el juego
 }
 
 // ------------------ CLASES ------------------
@@ -151,28 +198,39 @@ class Bala {
 
 class Enemy {
   float x, y;
-  Enemy(float x_, float y_) {
+  boolean grande;
+  
+  Enemy(float x_, float y_, boolean grande_) {
     x = x_;
     y = y_;
+    grande = grande_;
   }
   
   void update() {
-    y += 2;
+    y += (grande ? 1.2 : 2); // nave grande más lenta
   }
   
   void display() {
-    // Platillo ovalado
-    fill(180, 180, 200);
-    ellipse(x, y, 50, 20);
-    
-    // Cúpula superior
-    fill(0, 150, 255);
-    ellipse(x, y-10, 25, 15);
-    
-    // Luces inferiores
-    fill(255, 200, 50);
-    ellipse(x-15, y+8, 5, 5);
-    ellipse(x, y+8, 5, 5);
-    ellipse(x+15, y+8, 5, 5);
+    if (grande) {
+      // Nave especial grande
+      fill(150, 0, 200);
+      ellipse(x, y, 100, 40);
+      fill(0, 200, 255);
+      ellipse(x, y-20, 50, 25);
+      fill(255, 200, 50);
+      ellipse(x-30, y+15, 10, 10);
+      ellipse(x, y+15, 10, 10);
+      ellipse(x+30, y+15, 10, 10);
+    } else {
+      // Platillo normal
+      fill(180, 180, 200);
+      ellipse(x, y, 50, 20);
+      fill(0, 150, 255);
+      ellipse(x, y-10, 25, 15);
+      fill(255, 200, 50);
+      ellipse(x-15, y+8, 5, 5);
+      ellipse(x, y+8, 5, 5);
+      ellipse(x+15, y+8, 5, 5);
+    }
   }
 }
